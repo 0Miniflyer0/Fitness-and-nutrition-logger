@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.secret_key = 'some-secret-key'
@@ -9,8 +9,23 @@ app.secret_key = 'some-secret-key'
 def index():
     return render_template('index.html')
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        user = User.query.filter_by(username=username).first()
+
+        if user is None:
+            flash("Username does not exist.")
+            return redirect(url_for('login'))
+
+        if not check_password_hash(user.password_hash, password):
+            flash("Incorrect password.")
+            return redirect(url_for('login'))
+
+        return "Login successful!"
     return render_template('login.html')
 
 @app.route('/signup', methods=['GET', 'POST'])
