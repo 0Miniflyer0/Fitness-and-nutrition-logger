@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=>, initial-scale=1.0">
+    <title>Log Workout</title>
+</head>
+<body>
+    <form action="/log-exercise" method="POST">
+        <label for="date">Date</label>
+        <input type="date" id="date" name="date" required>
+
+        <label for="exercise_name">Exercise Name</label>
+        <input type="text" id="exercise_name" name="exercise_name" required>
+
+        <label>
+            <input type="radio" name="type" value="strength" required> Strength
+        </label>
+        <label>
+            <input type="radio" name="type" value="cardio"> Cardio
+        </label>
+
+        <div id="strength-fields">
+            <label for="sets">Sets</label>
+            <input type="number" id="sets" name="sets">
+            
+            <label for="reps">Reps</label>
+            <input type="number" id="reps" name="reps">
+
+            <label for="weight">Weight</label>
+            <input type="number" id="weight" name="weight" step="0.1">
+        </div>
+
+        <div id="cardio-fields">
+            <label for="duration">Duration</label>
+            <input type="number" id="duration" name="duration" step="0.1">
+
+            <label for="distance">Distance</label>
+            <input type="number" id="distance" name="distance" step="0.1">
+
+            <label for="calories">Calories</label>
+            <input type="number" id="calories" name="calories">
+        </div>
+
+        <button type="submit">Log Exercise</button>
+    </form>
+    <p><a href="/login">This is a filler that leads to login</a></p>
+</body>
+</html>

@@ -54,13 +54,14 @@ def dashboard():
 
 @app.route('/log-exercise', methods=['GET', 'POST'])
 def log_exercise():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
     if request.method == 'POST':
         date = request.form['date']
         exercise_name = request.form['exercise_name']
         exercise_type = request.form['type']
 
-        if exercise_type =='strength':
-            date = request.form['date']
+        if exercise_type == 'strength':
             sets = request.form['sets']
             reps = request.form['reps']
             weight = request.form['weight']
@@ -68,7 +69,6 @@ def log_exercise():
             distance = None
             calories = None
         elif exercise_type == 'cardio':
-            date = request.form['date']
             sets = None
             reps = None
             weight = None
@@ -76,7 +76,7 @@ def log_exercise():
             distance = request.form['distance']
             calories = request.form['calories']
 
-        new_log=ExerciseLog(
+        new_log = ExerciseLog(
             user_id=session['user_id'],
             date=date,
             type=exercise_type,
