@@ -14,10 +14,10 @@
         <input type="text" id="exercise_name" name="exercise_name" required>
 
         <label>
-            <input type="radio" name="type" value="strength" required> Strength
+            <input type="radio" name="type" value="strength" id="strength-radio" required> Strength
         </label>
         <label>
-            <input type="radio" name="type" value="cardio"> Cardio
+            <input type="radio" name="type" value="cardio" id="cardio-radio"> Cardio
         </label>
 
         <div id="strength-fields">
@@ -45,5 +45,23 @@
         <button type="submit">Log Exercise</button>
     </form>
     <p><a href="/login">This is a filler that leads to login</a></p>
+    <script>
+        let strengthFields = document.getElementById('strength-fields');
+        let cardioFields= document.getElementById('cardio-fields');
+        let strengthRadio = document.getElementById('strength-radio');
+        let cardioRadio = document.getElementById('cardio-radio');
+        strengthFields.style.display='none';
+        cardioFields.style.display='none';
+
+        strengthRadio.addEventListener('change', function() {
+            strengthFields.style.display ='block';
+            cardioFields.style.display ='none';
+        });
+
+        cardioRadio.addEventListener('change', function() {
+            strengthFields.style.display ='none';
+            cardioFields.style.display ='block';
+        });
+    </script>
 </body>
 </html>
