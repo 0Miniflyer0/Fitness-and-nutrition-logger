@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'some-secret-key'
@@ -57,7 +58,7 @@ def log_exercise():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     if request.method == 'POST':
-        date = request.form['date']
+        date = datetime.strptime(request.form['date'], '%Y-%m-%d').date()
         exercise_name = request.form['exercise_name']
         exercise_type = request.form['type']
 
@@ -68,6 +69,11 @@ def log_exercise():
             duration = None
             distance = None
             calories = None
+
+            if sets == '' or reps == '' or weight == '':
+                flash("Please fill in all strength fields.")
+                return redirect(url_for('log_exercise'))
+            
         elif exercise_type == 'cardio':
             sets = None
             reps = None
@@ -75,6 +81,10 @@ def log_exercise():
             duration = request.form['duration']
             distance = request.form['distance']
             calories = request.form['calories']
+
+            if duration =='' or distance =='' or calories == '':
+                flash("Please fill in all cardio fields.")
+                return redirect(url_for('log_exercise'))
 
         new_log = ExerciseLog(
             user_id=session['user_id'],

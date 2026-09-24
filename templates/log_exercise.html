@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=>, initial-scale=1.0">
     <title>Log Workout</title>
 </head>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    {% for message in messages %}
+      <p>{{ message }}</p>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
 <body>
     <form action="/log-exercise" method="POST">
         <label for="date">Date</label>
