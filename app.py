@@ -51,7 +51,9 @@ def signup():
 def dashboard():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    return render_template('dashboard.html')
+
+    logs = ExerciseLog.query.filter_by(user_id=session['user_id']).all()
+    return render_template('dashboard.html', logs=logs)
 
 @app.route('/log-exercise', methods=['GET', 'POST'])
 def log_exercise():
@@ -101,6 +103,21 @@ def log_exercise():
         db.session.add(new_log)
         db.session.commit()
     return render_template('log_exercise.html')
+
+@app.route('/delete-log/<int:log_id>', methods=['POST'])
+def delete_log(log_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    log = ExerciseLog.query.get(log_id)
+
+    if log is None or log.user_id != session['user_id']:
+        flash("You can't delete that log.")
+        return redirect(url_for('dashboard'))
+
+    db.session.delete(log)
+    db.session.commit()
+    return redirect(url_for('dashboard'))
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 db = SQLAlchemy(app)

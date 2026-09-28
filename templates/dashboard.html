@@ -7,6 +7,21 @@
 </head>
 <body>
     <h1>Dashboard</h1>
-    <p><a href =/signup> Get out </a></p>
+    {% for log in logs %}
+    <p>
+        {{ log.date }} - {{ log.exercise_name }} ({{ log.type }})
+        {% if log.type == 'strength' %}
+            — Sets: {{ log.sets }}, Reps: {{ log.reps }}, Weight: {{ log.weight }} lbs
+        {% else %}
+            — Duration: {{ log.duration }} min, Distance: {{ log.distance }} mi, Calories: {{ log.calories }}
+        {% endif %}
+        <form action="/delete-log/{{ log.id }}" method="POST">
+            <button type="submit">Delete</button>
+        </form>
+    </p>
+{% endfor %}
+
+    <p><a href="/log-exercise">Log a workout</a></p>
+    <p><a href="/signup">Get out</a></p>
 </body>
 </html>
