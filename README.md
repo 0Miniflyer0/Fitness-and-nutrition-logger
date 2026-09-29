@@ -1,4 +1,19 @@
-The fitness and nutrition logger is an application that allows the user to Log their workouts, wether it was a strength or cardio related exercise.
-Allowing the user to log the workout name, the date, the exercise, sets, reps and weight (in pounds.) if the exercise is strength.
-Duration (minutes), distance in miles, and how many calories burned for cardio exercises.
-For the nutrition side, the user should be able to set a caloric requirement for the day, and track the food they eat that day, and how many calories it provides.
+Fitness and Nutrition Logger
+
+A full-stack web application built with Python, Flask, and SQLAlchemy for tracking workouts and (in progress) nutrition. Originally based on a college senior project, rebuilt from scratch with expanded functionality and a stronger focus on secure, well-structured backend design.
+
+Features (current)
+
+User accounts with secure signup/login, using hashed passwords (Werkzeug) and session-based authentication
+Protected routes — pages and actions are only accessible to logged-in users
+Full exercise logging (create, read, update, delete):
+Strength entries: exercise name, date, sets, reps, weight (lbs)
+Cardio entries: exercise name, date, duration (min), distance (mi), calories burned
+Per-user data isolation — users can only view, edit, or delete their own logged exercises
+Dynamic, JavaScript-driven form that adjusts input fields based on exercise type
+
+Planned
+
+Nutrition tracking: set a daily caloric target, log food eaten, and track calories against that target
+
+Built with: Python, Flask, SQLAlchemy, SQLite, HTML/CSS, JavaScript
