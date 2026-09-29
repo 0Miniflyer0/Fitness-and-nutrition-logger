@@ -18,6 +18,7 @@
         <form action="/delete-log/{{ log.id }}" method="POST">
             <button type="submit">Delete</button>
         </form>
+        <p><a href="/edit-log/{{ log.id }}">Edit</a></p>
     </p>
 {% endfor %}
 

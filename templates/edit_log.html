@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Log</title>
+</head>
+<body>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <p>{{ message }}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <h1>Edit Log</h1>
+
+    <form action="/edit-log/{{ log.id }}" method="POST">
+        <label for="date">Date</label>
+        <input type="date" id="date" name="date" value="{{ log.date }}" required>
+
+        <label for="exercise_name">Exercise Name</label>
+        <input type="text" id="exercise_name" name="exercise_name" value="{{ log.exercise_name }}" required>
+
+        <label>
+            <input type="radio" name="type" value="strength" id="strength-radio" {% if log.type == 'strength' %}checked{% endif %} required> Strength
+        </label>
+        <label>
+            <input type="radio" name="type" value="cardio" id="cardio-radio" {% if log.type == 'cardio' %}checked{% endif %}> Cardio
+        </label>
+
+        <div id="strength-fields">
+            <label for="sets">Sets</label>
+            <input type="number" id="sets" name="sets" value="{{ log.sets }}">
+
+            <label for="reps">Reps</label>
+            <input type="number" id="reps" name="reps" value="{{ log.reps }}">
+
+            <label for="weight">Weight</label>
+            <input type="number" id="weight" name="weight" step="0.1" value="{{ log.weight }}">
+        </div>
+
+        <div id="cardio-fields">
+            <label for="duration">Duration</label>
+            <input type="number" id="duration" name="duration" step="0.1" value="{{ log.duration }}">
+
+            <label for="distance">Distance</label>
+            <input type="number" id="distance" name="distance" step="0.1" value="{{ log.distance }}">
+
+            <label for="calories">Calories</label>
+            <input type="number" id="calories" name="calories" value="{{ log.calories }}">
+        </div>
+
+        <button type="submit">Save Changes</button>
+    </form>
+
+    <script>
+        let strengthFields = document.getElementById('strength-fields');
+        let cardioFields = document.getElementById('cardio-fields');
+        let strengthRadio = document.getElementById('strength-radio');
+        let cardioRadio = document.getElementById('cardio-radio');
+
+        if (strengthRadio.checked) {
+            strengthFields.style.display = 'block';
+            cardioFields.style.display = 'none';
+        } else {
+            strengthFields.style.display = 'none';
+            cardioFields.style.display = 'block';
+        }
+
+        strengthRadio.addEventListener('change', function() {
+            strengthFields.style.display = 'block';
+            cardioFields.style.display = 'none';
+        });
+
+        cardioRadio.addEventListener('change', function() {
+            strengthFields.style.display = 'none';
+            cardioFields.style.display = 'block';
+        });
+    </script>
+</body>
+</html>

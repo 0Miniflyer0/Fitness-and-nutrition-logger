@@ -119,6 +119,43 @@ def delete_log(log_id):
     db.session.commit()
     return redirect(url_for('dashboard'))
 
+@app.route('/edit-log/<int:log_id>', methods=['GET', 'POST'])
+def edit_log(log_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    log = ExerciseLog.query.get(log_id)
+
+    if log is None or log.user_id != session['user_id']:
+        flash("You can't edit that log.")
+        return redirect(url_for('dashboard'))
+
+    if request.method == 'POST':
+        log.date = datetime.strptime(request.form['date'], '%Y-%m-%d').date()
+        log.exercise_name = request.form['exercise_name']
+        exercise_type = request.form['type']
+        log.type = exercise_type
+
+        if exercise_type == 'strength':
+            log.sets = request.form['sets']
+            log.reps = request.form['reps']
+            log.weight = request.form['weight']
+            log.duration = None
+            log.distance = None
+            log.calories = None
+        elif exercise_type == 'cardio':
+            log.sets = None
+            log.reps = None
+            log.weight = None
+            log.duration = request.form['duration']
+            log.distance = request.form['distance']
+            log.calories = request.form['calories']
+
+        db.session.commit()
+        return redirect(url_for('dashboard'))
+
+    return render_template('edit_log.html', log=log)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 db = SQLAlchemy(app)
 
