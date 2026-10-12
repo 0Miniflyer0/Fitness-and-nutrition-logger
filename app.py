@@ -27,7 +27,7 @@ def login():
             return redirect(url_for('login'))
 
         session['user_id'] = user.id
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('home'))
     return render_template('login.html')
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -156,6 +156,12 @@ def edit_log(log_id):
 
     return render_template('edit_log.html', log=log)
 
+@app.route('/home')
+def home():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    return render_template('home.html')
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 db = SQLAlchemy(app)
 
@@ -177,6 +183,12 @@ class ExerciseLog(db.Model):
     distance = db.Column(db.Float, nullable=True)
     calories = db.Column(db.Integer, nullable=True)
 
+class FoodLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    date = db.Column(db.Date, nullable=False)
+    food_name = db.Column(db.String(100), nullable=False)
+    calories = db.Column(db.Integer, nullable=False)
 
 if __name__ == '__main__':
     app.run(debug=True)
