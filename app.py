@@ -162,6 +162,44 @@ def home():
         return redirect(url_for('login'))
     return render_template('home.html')
 
+@app.route('/log-food', methods=['GET', 'POST'])
+def log_food():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        date_str = request.form['date']
+        food_name = request.form['food_name']
+        calories_str = request.form['calories']
+
+        if date_str == '' or food_name == '' or calories_str == '':
+            flash("Please fill in all fields.")
+            return redirect(url_for('log_food'))
+
+        try:
+            date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            calories = int(calories_str)
+        except ValueError:
+            flash("Please enter a valid date and a whole number for calories.")
+            return redirect(url_for('log_food'))
+
+        if calories < 0:
+            flash("Calories can't be negative.")
+            return redirect(url_for('log_food'))
+
+        new_food = FoodLog(
+            user_id=session['user_id'],
+            date=date,
+            food_name=food_name,
+            calories=calories
+        )
+        db.session.add(new_food)
+        db.session.commit()
+        flash("Food logged.")
+        return redirect(url_for('log_food'))  
+
+    return render_template('log_food.html')
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 db = SQLAlchemy(app)
 
@@ -169,6 +207,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
+    calorie_goal = db.Column(db.Integer, nullable=True)
 
 class ExerciseLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)

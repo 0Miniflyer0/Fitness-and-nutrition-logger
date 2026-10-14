@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log Food</title>
+</head>
+<body>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <p>{{ message }}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form action="/log-food" method="POST">
+        <label for="date">Date</label>
+        <input type="date" id="date" name="date" required>
+
+        <label for="food_name">Food Name</label>
+        <input type="text" id="food_name" name="food_name" required>
+
+        <label for="calories">Calories</label>
+        <input type="number" id="calories" name="calories" min="0" required>
+
+        <button type="submit">Log Food</button>
+    </form>
+    <p><a href="/home">Back to home</a></p>
+</body>
+</html>
