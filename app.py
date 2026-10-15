@@ -200,6 +200,32 @@ def log_food():
 
     return render_template('log_food.html')
 
+@app.route('/set-goal', methods=['GET', 'POST'])
+def set_goal():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    user = User.query.get(session['user_id'])
+    if request.method == 'POST':
+        goal_str = request.form['calorie_goal']
+        if goal_str == '':
+            flash("Please fill in the fields.")
+            return redirect(url_for(set_goal))
+        try: 
+            goal = int(goal_str)
+        except ValueError:
+            flash("Please enter a whole number.")
+            return redirect(url_for('set_goal'))
+        if goal <= 0:
+            flash("Goal must greater than zero.")
+            return redirect(url_for('set_goal'))
+        user.calorie_goal = goal
+        db.session.commit()
+
+        flash("Goal saved.")
+        return redirect(url_for('home'))
+    return render_template('set_goal.html', user=user)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 db = SQLAlchemy(app)
 

@@ -1,0 +1,27 @@
+<!-- note: filler placeholder for the official skeleton -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Calorie Goal</title>
+</head>
+<body>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <p>{{ message }}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form action="/set-goal" method="POST">
+        <label for="calorie_goal">Daily Calorie Goal</label>
+        <input type="number" id="calorie_goal" name="calorie_goal" min="1"
+               value="{{ user.calorie_goal or '' }}" required>
+
+        <button type="submit">Save Goal</button>
+    </form>
+    <p><a href="/home">Back to home</a></p>
+</body>
+</html>
