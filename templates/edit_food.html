@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Food</title>
+</head>
+<body>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <p>{{ message }}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form action="/edit-food/{{ food.id }}" method="POST">
+        <label for="date">Date</label>
+        <input type="date" id="date" name="date" value="{{ food.date }}" required>
+
+        <label for="food_name">Food Name</label>
+        <input type="text" id="food_name" name="food_name" value="{{ food.food_name }}" required>
+
+        <label for="calories">Calories</label>
+        <input type="number" id="calories" name="calories" min="0" value="{{ food.calories }}" required>
+
+        <button type="submit">Save Changes</button>
+    </form>
+    <p><a href="/nutrition-dashboard">Back to nutrition dashboard</a></p>
+</body>
+</html>

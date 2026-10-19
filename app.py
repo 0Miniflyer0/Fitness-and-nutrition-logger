@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, date
 
 app = Flask(__name__)
 app.secret_key = 'some-secret-key'
@@ -226,6 +226,72 @@ def set_goal():
         return redirect(url_for('home'))
     return render_template('set_goal.html', user=user)
 
+@app.route('/nutrition-dashboard')
+def nutrition_dashboard():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    user = User.query.get(session['user_id'])
+    foods = FoodLog.query.filter_by(user_id=session['user_id']).order_by(FoodLog.date.desc()).all()
+
+    today = date.today()
+    today_total = 0
+    for food in foods:
+        if food.date == today:
+            today_total += food.calories
+    return render_template('nutrition_dashboard.html', foods=foods, user=user, today_total=today_total)
+
+@app.route('/delete-food/<int:food_id>', methods=['POST'])
+def delete_food(food_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    food = FoodLog.query.get(food_id)
+    if food is None or food.user_id != session['user_id']:
+        flash("You can't delete that entry.")
+        return redirect(url_for('nutrition_dashboard'))
+    db.session.delete(food)
+    db.session.commit()
+    return redirect(url_for('nutrition_dashboard'))
+
+@app.route('/edit-food/<int:food_id>', methods=['GET', 'POST'])
+def edit_food(food_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    food = FoodLog.query.get(food_id)
+    if food is None or food.user_id != session['user_id']:
+        flash("You can't edit that entry.")
+        return redirect(url_for('nutrition_dashboard'))
+
+    if request.method == 'POST':
+        date_str = request.form['date']
+        food_name = request.form['food_name']
+        calories_str = request.form['calories']
+
+        if date_str == '' or food_name == '' or calories_str == '':
+            flash("Please fill in all fields.")
+            return redirect(url_for('edit_food', food_id=food_id))
+
+        try:
+            date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            calories = int(calories_str)
+        except ValueError:
+            flash("Please enter a valid date and a whole number for calories.")
+            return redirect(url_for('edit_food', food_id=food_id))
+
+        if calories < 0:
+            flash("Calories can't be negative.")
+            return redirect(url_for('edit_food', food_id=food_id))
+
+        food.date = date
+        food.food_name = food_name
+        food.calories = calories
+        db.session.commit()
+
+        flash("Entry updated.")
+        return redirect(url_for('nutrition_dashboard'))
+
+    return render_template('edit_food.html', food=food)
+    
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 db = SQLAlchemy(app)
 

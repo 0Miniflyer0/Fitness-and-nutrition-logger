@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutrition Dashboard</title>
+</head>
+<body>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <p>{{ message }}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <h1>Nutrition Dashboard</h1>
+
+    <p><a href="/set-goal">Set goal</a> | <a href="/log-food">Log food</a> | <a href="/home">Home</a></p>
+
+    {% if user.calorie_goal %}
+    <p>Today: {{ today_total }} / {{ user.calorie_goal }} calories</p>
+    {% else %}
+    <p>Today: {{ today_total }} calories (<a href="/set-goal">set a goal</a> to track progress)</p>
+    {% endif %}
+
+    {% if foods %}
+    <table>
+        <tr>
+            <th>Date</th>
+            <th>Food</th>
+            <th>Calories</th>
+            <th>Actions</th>
+        </tr>
+        {% for food in foods %}
+        <tr>
+            <td>{{ food.date }}</td>
+            <td>{{ food.food_name }}</td>
+            <td>{{ food.calories }}</td>
+            <td>
+                <a href="/edit-food/{{ food.id }}">Edit</a>
+                <form action="/delete-food/{{ food.id }}" method="POST">
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>No food logged yet.</p>
+    {% endif %}
+</body>
+</html>
