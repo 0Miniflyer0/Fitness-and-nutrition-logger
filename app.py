@@ -1,10 +1,11 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, date
 
 app = Flask(__name__)
-app.secret_key = 'some-secret-key'
+app.secret_key = os.environ.get('SECRET_KEY', 'dev-only-key')
 
 @app.route('/')
 def index():
@@ -37,8 +38,16 @@ def signup():
         password = request.form['password']
         confirm_password = request.form['confirm_password']
 
+        if username == '' or password == '':
+            flash("Please fill in all fields.")
+            return redirect(url_for('signup'))
+
         if password != confirm_password:
             flash("Passwords do not match!")
+            return redirect(url_for('signup'))
+
+        if User.query.filter_by(username=username).first() is not None:
+            flash("That username is already taken.")
             return redirect(url_for('signup'))
 
         new_user = User(username=username, password_hash=generate_password_hash(password))
@@ -60,7 +69,7 @@ def log_exercise():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     if request.method == 'POST':
-        date = datetime.strptime(request.form['date'], '%Y-%m-%d').date()
+        entry_date = datetime.strptime(request.form['date'], '%Y-%m-%d').date()
         exercise_name = request.form['exercise_name']
         exercise_type = request.form['type']
 
@@ -75,7 +84,7 @@ def log_exercise():
             if sets == '' or reps == '' or weight == '':
                 flash("Please fill in all strength fields.")
                 return redirect(url_for('log_exercise'))
-            
+
         elif exercise_type == 'cardio':
             sets = None
             reps = None
@@ -84,13 +93,13 @@ def log_exercise():
             distance = request.form['distance']
             calories = request.form['calories']
 
-            if duration =='' or distance =='' or calories == '':
+            if duration == '' or distance == '' or calories == '':
                 flash("Please fill in all cardio fields.")
                 return redirect(url_for('log_exercise'))
 
         new_log = ExerciseLog(
             user_id=session['user_id'],
-            date=date,
+            date=entry_date,
             type=exercise_type,
             exercise_name=exercise_name,
             sets=sets,
@@ -102,6 +111,8 @@ def log_exercise():
         )
         db.session.add(new_log)
         db.session.commit()
+        flash("Exercise logged.")
+        return redirect(url_for('log_exercise'))
     return render_template('log_exercise.html')
 
 @app.route('/delete-log/<int:log_id>', methods=['POST'])
@@ -177,7 +188,7 @@ def log_food():
             return redirect(url_for('log_food'))
 
         try:
-            date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            entry_date = datetime.strptime(date_str, '%Y-%m-%d').date()
             calories = int(calories_str)
         except ValueError:
             flash("Please enter a valid date and a whole number for calories.")
@@ -189,14 +200,14 @@ def log_food():
 
         new_food = FoodLog(
             user_id=session['user_id'],
-            date=date,
+            date=entry_date,
             food_name=food_name,
             calories=calories
         )
         db.session.add(new_food)
         db.session.commit()
         flash("Food logged.")
-        return redirect(url_for('log_food'))  
+        return redirect(url_for('log_food'))
 
     return render_template('log_food.html')
 
@@ -210,20 +221,20 @@ def set_goal():
         goal_str = request.form['calorie_goal']
         if goal_str == '':
             flash("Please fill in the fields.")
-            return redirect(url_for(set_goal))
-        try: 
+            return redirect(url_for('set_goal'))
+        try:
             goal = int(goal_str)
         except ValueError:
             flash("Please enter a whole number.")
             return redirect(url_for('set_goal'))
         if goal <= 0:
-            flash("Goal must greater than zero.")
+            flash("Goal must be greater than zero.")
             return redirect(url_for('set_goal'))
         user.calorie_goal = goal
         db.session.commit()
 
         flash("Goal saved.")
-        return redirect(url_for('home'))
+        return redirect(url_for('nutrition_dashboard'))
     return render_template('set_goal.html', user=user)
 
 @app.route('/nutrition-dashboard')
@@ -272,7 +283,7 @@ def edit_food(food_id):
             return redirect(url_for('edit_food', food_id=food_id))
 
         try:
-            date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            entry_date = datetime.strptime(date_str, '%Y-%m-%d').date()
             calories = int(calories_str)
         except ValueError:
             flash("Please enter a valid date and a whole number for calories.")
@@ -282,7 +293,7 @@ def edit_food(food_id):
             flash("Calories can't be negative.")
             return redirect(url_for('edit_food', food_id=food_id))
 
-        food.date = date
+        food.date = entry_date
         food.food_name = food_name
         food.calories = calories
         db.session.commit()
@@ -291,7 +302,7 @@ def edit_food(food_id):
         return redirect(url_for('nutrition_dashboard'))
 
     return render_template('edit_food.html', food=food)
-    
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 db = SQLAlchemy(app)
 
